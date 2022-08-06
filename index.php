@@ -9,11 +9,43 @@
 	<title>Document</title>
 </head>
 <body>
+	
+<?php 
+	define('ROJ', 0);
+	define('AMA', 1);
+	define('VERD', 2);
+	define('NEGR', 3);
+	define('AZU', 4);
+	define('ROSA', 5);
 
+	define('COLORS', [ROJ, AMA, VERD, NEGR, AZU, ROSA]);
+
+	function generarJuego(){
+		$juego;
+
+			for ($i=0; $i < 10 ; $i++)
+				for($j=0; $j < 10; $j++) {
+					$color = array_rand(COLORS);
+					$juego[$i][$j] = $color;
+				}
+
+		return $juego;
+	}
+
+    $juego = generarJuego();
+
+    setcookie("juego", json_encode($juego), time() + (999999), "/");
+
+	$juego = json_decode($_COOKIE['juego']);
+?>
+
+	<div class="bagra"></div>
 	<?php include_once('includes/menu.php');?>
-	<div class="container container_m main_container">
-		<a href="juego.php?go=1">Juego nuevo</a>
-
+	<div class="container main_container">
+		<div>	
+			<a href="juego.php?go=1">Juego nuevo</a>
+			<p>Eduardo A. Castillo G.</p>
+		</div>
 	</div>
 </body>
 </html>

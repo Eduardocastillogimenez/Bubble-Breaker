@@ -49,8 +49,9 @@ function getColor($numeroColor){
 }
 
 $nuevo = false;
+$juego = json_decode($_COOKIE['juego']);
 
-if( isset($_GET["go"]) && !$nuevo ){
+if( isset($_GET["go"]) && !$juego ){
     $nuevo = true;
     $juego = generarJuego();
 
@@ -58,9 +59,6 @@ if( isset($_GET["go"]) && !$nuevo ){
 }
 
 $juego = json_decode($_COOKIE['juego']);
-echo '<pre>';
-var_dump($_COOKIE['juego']);
-echo '</pre>';
 ?>
 
 <!DOCTYPE html>
@@ -78,18 +76,19 @@ echo '</pre>';
 	<?php include_once('includes/menu.php');?>
     <div class="container container_m">
 
-    <form class="form" action="#" method="POST" name="login">
+    <form class="form" action="#" method="POST" name="form">
             <div class="div_form_container">
                 <?php  foreach($juego as $i => $fila): ?>
                 <div class="div_form">
                     <tr class="tr_form">      
                         <?php  foreach($fila as $j => $punto): ?>
                             <?php  $name_id = $i."".$j; ?>
-                            <td ><span class="span_form"><input 
+                            <td ><span class="span_form"><input type="button" 
+                                onclick="window.location.href='/Bubble%20Breaker/juego.php?go=<?php echo $name_id; ?> '"
                                 id="<?php echo $name_id; ?>" 
                                 name="<?php echo $name_id; ?>" 
-                                class="<?php echo getColor($punto); ?>"  
-                                value="<?php echo $name_id; ?>" disabled>
+                                class="<?php echo getColor($punto); ?>"
+                                >
                             </span></td>
                         <?php endforeach; ?>
                     </tr> 
@@ -98,6 +97,7 @@ echo '</pre>';
             </div>
         
         <button type="submit" class="" name="login">Acceso</button>
+        <input   onclick="location.reload()"/>
     </form>
 
     </div>
