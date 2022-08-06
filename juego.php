@@ -25,6 +25,9 @@ function getColor($numeroColor){
     $color = "roj";
 
     switch ($numeroColor) {
+        case -1:
+            $color = "eliminado";
+            break;
         case 0:
             $color = "roj";
             break;
@@ -48,8 +51,47 @@ function getColor($numeroColor){
     return $color;
 }
 
+function coincidencias(&$juego){
+    $coincidencia = false;
+    $puntoSelec = $_GET["pun"];
+
+    for ($i=0; $i < 10 ; $i++){
+        for($j=0; $j < 10; $j++) {
+            if($puntoSelec === $i."".$j){
+                if($i>0){
+                    if($juego[$i][$j] === $juego[$i-1][$j]){
+                        $coincidencia = true; 
+                    } 
+                }
+                if($i<9){
+                    if($juego[$i][$j] === $juego[$i+1][$j]){
+                        $coincidencia = true; 
+                    }  
+                }
+                if($j>0){
+                    if($juego[$i][$j] === $juego[$i][$j-1]){
+                        $coincidencia = true; 
+                    }   
+                }
+                if($j<9){
+                    if($juego[$i][$j] === $juego[$i][$j+1]){
+                        $coincidencia = true; 
+                    }  
+                }                                                                
+            }
+        }
+    }
+
+    return $coincidencia;
+}
+
+
 $nuevo = false;
 $juego = json_decode($_COOKIE['juego']);
+$score = 0;
+setcookie("score", json_encode($score), time() + (999999), "/");
+$score = json_decode($_COOKIE['score']);
+
 
 if( isset($_GET["go"]) && !$juego ){
     $nuevo = true;
@@ -58,7 +100,96 @@ if( isset($_GET["go"]) && !$juego ){
     setcookie("juego", json_encode($juego), time() + (999999), "/");
 }
 
-$juego = json_decode($_COOKIE['juego']);
+function eliminarEspacioVacio(&$juego){
+
+        $juego2 = $juego;
+        unset($_COOKIE["juego"]);
+
+        for ($i=9; $i > -1 ; $i--){
+            for($j=0; $j < 10; $j++) {
+                if($juego2[$i][$j] === -1 && $i>0){
+                    $bajar = $juego2[$i-1][$j];
+                    $juego2[$i-1][$j] = $juego2[$i][$j];
+                    $juego2[$i][$j] = $bajar;
+                }
+            }
+        }
+        
+
+        $juego = $juego2;
+        setcookie("juego", json_encode($juego2), time() + (999999), "/");
+    
+}
+
+if( isset($_GET["pun"]) ){
+
+    if(coincidencias($juego)){
+        $juego2 = $juego;
+        unset($_COOKIE["juego"]);
+        $puntoSelec = $_GET["pun"];
+
+        for ($i=0; $i < 10 ; $i++){
+            for($j=0; $j < 10; $j++) {
+                
+                if($puntoSelec === $i."".$j){         var_dump($puntoSelec);
+                    if($i<9){
+                        if($juego2[$i][$j] === $juego2[$i+1][$j]){
+                            
+                            if($juego2[$i][$j] === $juego2[$i-1][$j]){
+                                $juego2[$i-1][$j] = -1;
+                                if($juego2[$i][$j] === $juego2[$i-2][$j]){
+                                    $juego2[$i-2][$j] = -1;
+                                    if($juego2[$i][$j] === $juego2[$i-3][$j]){
+                                        $juego2[$i-3][$j] = -1;
+                                    }
+                                }
+                            }
+                            
+                            $juego2[$i][$j] = -1;
+                            $h = intval($i+1);
+                            $puntoSelec = $h."".$j;var_dump($puntoSelec);
+                        }
+                    }else{
+                        $juego2[$i][$j] = -1;
+                    }
+
+                    unset($_COOKIE["score"]);
+                    $score = $score +1;
+                    setcookie("score", json_encode($score), time() + (999999), "/");            
+                                                                                   
+                }
+            }
+        }
+
+        $puntoSelec = $_GET["pun"];
+        for ($i=0; $i < 10 ; $i++){
+            for($j=0; $j < 10; $j++) {
+                if($puntoSelec === $i."".$j){         
+                    if($j<9){
+                        if($juego2[$i][$j] === $juego2[$i][$j+1]){
+                            $juego2[$i][$j] = -1;
+                            $h = $i+1;
+                            var_dump($puntoSelec);
+                            $puntoSelec = ($h."".$j);
+                            var_dump($puntoSelec);
+                        }
+                    }else{
+                        $juego2[$i][$j] = -1;
+                    }
+                    unset($_COOKIE["score"]);
+                    $score = $score +1;
+                    setcookie("score", json_encode($score), time() + (999999), "/");            
+                                                                                   
+                }
+            }
+        }
+ 
+        $juego = $juego2;
+        setcookie("juego", json_encode($juego2), time() + (999999), "/");
+        
+        eliminarEspacioVacio($juego);
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -74,17 +205,18 @@ $juego = json_decode($_COOKIE['juego']);
 <body>
     
 	<?php include_once('includes/menu.php');?>
+    <p> score:<?php echo $score; ?></p>
     <div class="container container_m">
-
-    <form class="form" action="#" method="POST" name="form">
+        
+    <div class="form" >
             <div class="div_form_container">
                 <?php  foreach($juego as $i => $fila): ?>
                 <div class="div_form">
-                    <tr class="tr_form">      
+                    <tr class="tr_form">    
                         <?php  foreach($fila as $j => $punto): ?>
                             <?php  $name_id = $i."".$j; ?>
                             <td ><span class="span_form"><input type="button" 
-                                onclick="window.location.href='/Bubble%20Breaker/juego.php?go=<?php echo $name_id; ?> '"
+                                onclick="window.location.href='/Bubble%20Breaker/juego.php?pun=<?php echo $name_id; ?> '"
                                 id="<?php echo $name_id; ?>" 
                                 name="<?php echo $name_id; ?>" 
                                 class="<?php echo getColor($punto); ?>"
@@ -95,10 +227,7 @@ $juego = json_decode($_COOKIE['juego']);
                 </div>
                 <?php endforeach; ?>
             </div>
-        
-        <button type="submit" class="" name="login">Acceso</button>
-        <input   onclick="location.reload()"/>
-    </form>
+    </div>
 
     </div>
 
