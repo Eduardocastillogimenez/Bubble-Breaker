@@ -86,19 +86,22 @@ function coincidencias(&$juego){
 }
 
 
+
+
 $nuevo = false;
 $juego = json_decode($_COOKIE['juego']);
-$score = 0;
-setcookie("score", json_encode($score), time() + (999999), "/");
-$score = json_decode($_COOKIE['score']);
-
 
 if( isset($_GET["go"]) && !$juego ){
     $nuevo = true;
     $juego = generarJuego();
+    $final = "na";
 
     setcookie("juego", json_encode($juego), time() + (999999), "/");
+    setcookie("score", json_encode(0), time() + (999999), "/");
+   
 }
+
+$score = json_decode($_COOKIE['score']);
 
 function eliminarEspacioVacio(&$juego){
 
@@ -114,8 +117,46 @@ function eliminarEspacioVacio(&$juego){
                 }
             }
         }
+        for ($i=9; $i > -1 ; $i--){
+            for($j=0; $j < 10; $j++) {
+                if($juego2[$i][$j] === -1 && $i>0){
+                    $bajar = $juego2[$i-1][$j];
+                    $juego2[$i-1][$j] = $juego2[$i][$j];
+                    $juego2[$i][$j] = $bajar;
+                }
+            }
+        }
         
-
+        for ($i=9; $i > -1 ; $i--){
+            for($j=0; $j < 10; $j++) {
+                if($juego2[$i][$j] === -1 && $i>0){
+                    $bajar = $juego2[$i-1][$j];
+                    $juego2[$i-1][$j] = $juego2[$i][$j];
+                    $juego2[$i][$j] = $bajar;
+                }
+            }
+        }
+        
+        for ($i=9; $i > -1 ; $i--){
+            for($j=0; $j < 10; $j++) {
+                if($juego2[$i][$j] === -1 && $i>0){
+                    $bajar = $juego2[$i-1][$j];
+                    $juego2[$i-1][$j] = $juego2[$i][$j];
+                    $juego2[$i][$j] = $bajar;
+                }
+            }
+        }
+        
+        for ($i=9; $i > -1 ; $i--){
+            for($j=0; $j < 10; $j++) {
+                if($juego2[$i][$j] === -1 && $i>0){
+                    $bajar = $juego2[$i-1][$j];
+                    $juego2[$i-1][$j] = $juego2[$i][$j];
+                    $juego2[$i][$j] = $bajar;
+                }
+            }
+        }
+        
         $juego = $juego2;
         setcookie("juego", json_encode($juego2), time() + (999999), "/");
     
@@ -140,6 +181,55 @@ function recur(&$juego2,$puntoSelec){
         }
     }
 }
+function puntosRegistrados($juego2, $i, $j, $col, &$yaVisto) {
+    array_push($yaVisto, [$i, $j]);
+
+    if(isset($juego2[$i+1][$j])){
+        if($juego2[$i+1][$j] == $col && array_search([$i+1, $j], $yaVisto) === false) {
+            puntosRegistrados($juego2, $i+1, $j, $col, $yaVisto);
+        }
+    }
+    if(isset($juego2[$i-1][$j])){
+        if($juego2[$i-1][$j] == $col && array_search([$i-1, $j], $yaVisto) === false) {
+            puntosRegistrados($juego2, $i-1, $j, $col, $yaVisto);
+        }
+    }
+    if(isset($juego2[$i][$j+1])){
+        if($juego2[$i][$j+1] == $col && array_search([$i, $j+1], $yaVisto) === false) {
+            puntosRegistrados($juego2, $i, $j+1, $col, $yaVisto);
+        }
+    }
+    if(isset($juego2[$i][$j-1])){
+        if($juego2[$i][$j-1] == $col && array_search([$i, $j-1], $yaVisto) === false) {
+            puntosRegistrados($juego2, $i, $j-1, $col, $yaVisto);
+        }
+    }
+    return;
+}
+
+function reorden(&$juego2, $i, $j, $col) {
+    $yaVisto = [];
+
+    puntosRegistrados($juego2, $i, $j, $col, $yaVisto);
+
+    if(count($yaVisto) < 2) {
+        return;
+    }
+
+    foreach ($yaVisto as $a) {
+        $pi = $a[0];
+        $pj = $a[1];
+        $juego2[$pi][$pj] = -1;
+    }
+    
+    $score = 0;
+    if(isset($_COOKIE['score'])){
+        $score = $_COOKIE['score'];
+    }
+    
+    setcookie("score", json_encode($score + count($yaVisto) - 1), time() + (999999), "/");
+    count($yaVisto);
+}
 
 if( isset($_GET["pun"]) ){
 
@@ -149,23 +239,48 @@ if( isset($_GET["pun"]) ){
         $puntoSelec = $_GET["pun"];
 
         $col = 0;
+ //       for ($i=0; $i < 10 ; $i++){
+   //         for($j=0; $j < 10; $j++) {         
+     //           if($puntoSelec === $i."".$j){   
+       //             if($i<9){
+         //               if($juego2[$i][$j] === $juego2[$i+1][$j]){                   
+           //                 $juego2[$i+1][$j] = -1;
+             //           }
+               //     } 
+                 //   if($i>0){
+  //                      if($juego2[$i][$j] === $juego2[$i-1][$j]){                   
+    //                        $juego2[$i-1][$j] = -1;
+      //                  } 
+        //            }
+          //          if($j<9){
+            //            if($juego2[$i][$j] === $juego2[$i][$j+1]){                   
+              //              $juego2[$i][$j+1] = -1;
+                //        }
+ //                   } 
+   //                 if($j>0){
+     //                   if($juego2[$i][$j] === $juego2[$i][$j-1]){                   
+       //                     $juego2[$i][$j-1] = -1;
+         //               } 
+           //         }
+             //       $col =  $juego2[$i][$j];   
+               //     $juego2[$i][$j] = -1; 
+  //                  unset($_COOKIE["score"]);
+    //                $score = $score +1;
+      //              setcookie("score", json_encode($score), time() + (999999), "/");                                                                                     
+        //        }
+          //  }
+       // }
         for ($i=0; $i < 10 ; $i++){
             for($j=0; $j < 10; $j++) {         
-                if($puntoSelec === $i."".$j){    
-                    $col =  $juego2[$i][$j];   
-                    $juego2[$i][$j] = -1; 
-                    unset($_COOKIE["score"]);
-                    $score = $score +1;
-                    setcookie("score", json_encode($score), time() + (999999), "/");                                                                                     
+                if($puntoSelec === $i."".$j){   
+                    $col =  $juego2[$i][$j];     
+                    reorden($juego2, intval($i), intval($j), $col);                                                                              
                 }
             }
         }
-       
 
         //recur($juego2,$puntoSelec);
 
-
-      
  
         $juego = $juego2;
         setcookie("juego", json_encode($juego2), time() + (999999), "/");

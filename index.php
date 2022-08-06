@@ -33,8 +33,10 @@
 	}
 
     $juego = generarJuego();
+	$score = 0;
 
     setcookie("juego", json_encode($juego), time() + (999999), "/");
+	setcookie("score", json_encode(0), time() + (999999), "/");
 
 	$juego = json_decode($_COOKIE['juego']);
 ?>
